@@ -1,0 +1,10 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root { color-scheme: light; }
+html { direction: rtl; }
+body { background: #f7f3ec; color: #17202a; font-family: system-ui, -apple-system, "Segoe UI", Tahoma, Arial, sans-serif; }
+a { color: #0e7c7b; }
+input, textarea, select { outline: none; }
+input:focus, textarea:focus, select:focus { border-color: #0e7c7b !important; box-shadow: 0 0 0 2px #e6f4f3; }

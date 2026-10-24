@@ -1,0 +1,199 @@
+"use client";
+import React, { createContext, useContext, useEffect, useMemo, useState } from "react";
+import type { AppState, Profile } from "./types";
+import { seedState } from "./seed";
+
+type Accounts = Record<string, { id: string; password: string }>;
+const STATE_KEY = "wansat_state_v1";
+const USER_KEY = "wansat_user_v1";
+const ACCOUNTS_KEY = "wansat_accounts_v1";
+const seedAccounts: Accounts = {
+  "demo@wansat.sd": { id: "u1", password: "demo" },
+  "mariam@wansat.sd": { id: "u2", password: "demo" },
+  "omar@wansat.sd": { id: "u3", password: "demo" },
+  "sara@wansat.sd": { id: "u4", password: "demo" },
+  "khalid@wansat.sd": { id: "u5", password: "demo" },
+};
+const uid = (p: string) => `${p}_${Date.now().toString(36)}_${Math.floor(Math.random() * 1e6)}`;
+
+type Store = {
+  state: AppState; current: Profile | null; loaded: boolean;
+  login: (email: string, password: string) => string | null;
+  signup: (name: string, email: string, password: string, stateName: string, bio: string) => string | null;
+  logout: () => void;
+  profileById: (id: string) => Profile | undefined;
+  createPost: (text: string, groupId?: string, pageId?: string) => void;
+  toggleLike: (postId: string) => void;
+  addComment: (postId: string, text: string) => void;
+  sharePost: (postId: string) => void;
+  deletePost: (postId: string) => void;
+  sendFriendRequest: (toId: string) => void;
+  acceptFriend: (fid: string) => void; rejectFriend: (fid: string) => void;
+  toggleFollow: (userId: string) => void;
+  createGroup: (name: string, description: string) => string;
+  joinGroup: (gid: string) => void; leaveGroup: (gid: string) => void;
+  createPage: (name: string, description: string) => string;
+  togglePageFollow: (pid: string) => void;
+  addStory: (text: string) => void;
+  startConversation: (otherId: string) => string;
+  sendMessage: (convId: string, text: string) => void;
+  markNotificationsRead: () => void;
+  createListing: (title: string, price: number, stateName: string, description: string) => string;
+  createEvent: (title: string, date: string, location: string, description: string) => string;
+  toggleRsvp: (eid: string) => void;
+};
+
+const Ctx = createContext<Store | null>(null);
+export function useStore(): Store {
+  const v = useContext(Ctx);
+  if (!v) throw new Error("useStore outside provider");
+  return v;
+}
+
+export function StoreProvider({ children }: { children: React.ReactNode }) {
+  const [state, setState] = useState<AppState>(seedState);
+  const [currentId, setCurrentId] = useState<string | null>(null);
+  const [accounts, setAccounts] = useState<Accounts>(seedAccounts);
+  const [loaded, setLoaded] = useState(false);
+
+  useEffect(() => {
+    try {
+      const s = localStorage.getItem(STATE_KEY);
+      if (s) setState({ ...seedState, ...JSON.parse(s) });
+      const u = localStorage.getItem(USER_KEY);
+      if (u) setCurrentId(u);
+      const a = localStorage.getItem(ACCOUNTS_KEY);
+      if (a) setAccounts({ ...seedAccounts, ...JSON.parse(a) });
+    } catch { /* keep seed */ }
+    setLoaded(true);
+  }, []);
+  useEffect(() => {
+    if (!loaded) return;
+    try {
+      localStorage.setItem(STATE_KEY, JSON.stringify(state));
+      localStorage.setItem(ACCOUNTS_KEY, JSON.stringify(accounts));
+      if (currentId) localStorage.setItem(USER_KEY, currentId);
+      else localStorage.removeItem(USER_KEY);
+    } catch { /* storage full/blocked */ }
+  }, [state, accounts, currentId, loaded]);
+
+  const current = state.profiles.find((p) => p.id === currentId) ?? null;
+  const profileById = (id: string) => state.profiles.find((p) => p.id === id);
+  const notify = (userId: string, text: string) => setState((s) => ({
+    ...s, notifications: [{ id: uid("n"), userId, text, createdAt: new Date().toISOString(), read: false }, ...s.notifications],
+  }));
+
+  const value: Store = useMemo(() => ({
+    state, current, loaded,
+    login: (email, password) => {
+      const acc = accounts[email.trim().toLowerCase()];
+      if (!acc || acc.password !== password) return "البريد أو كلمة السر ما صحيحة.";
+      setCurrentId(acc.id); return null;
+    },
+    signup: (name, email, password, stateName, bio) => {
+      const key = email.trim().toLowerCase();
+      if (accounts[key]) return "الحساب ده موجود أصلاً، سجّل دخول.";
+      if (password.length < 4) return "كلمة السر لازم تكون 4 أحرف على الأقل.";
+      const id = uid("u");
+      const colors = ["#0e7c7b", "#b45309", "#1d4ed8", "#be185d", "#15803d"];
+      const profile: Profile = { id, name: name.trim(), email: key, bio: bio.trim(), state: stateName.trim() || "السودان", avatarColor: colors[state.profiles.length % colors.length], coverColor: "#0a5e5d" };
+      setState((s) => ({ ...s, profiles: [...s.profiles, profile] }));
+      setAccounts((a) => ({ ...a, [key]: { id, password } }));
+      setCurrentId(id); return null;
+    },
+    logout: () => setCurrentId(null),
+    profileById,
+    createPost: (text, groupId, pageId) => {
+      if (!currentId || !text.trim()) return;
+      setState((s) => ({ ...s, posts: [{ id: uid("p"), authorId: currentId, groupId, pageId, text: text.trim(), createdAt: new Date().toISOString(), likes: [], shares: 0, comments: [] }, ...s.posts] }));
+    },
+    toggleLike: (postId) => {
+      if (!currentId) return;
+      const post = state.posts.find((p) => p.id === postId);
+      const wasLiked = post ? post.likes.includes(currentId) : false;
+      setState((s) => ({ ...s, posts: s.posts.map((p) => {
+        if (p.id !== postId) return p;
+        const liked = p.likes.includes(currentId);
+        const likes = liked ? p.likes.filter((x) => x !== currentId) : [...p.likes, currentId];
+        return { ...p, likes };
+      }) }));
+      if (post && !wasLiked && post.authorId !== currentId) notify(post.authorId, `${current?.name ?? "زول"} أعجب بمنشورك.`);
+    },
+    addComment: (postId, text) => {
+      if (!currentId || !text.trim()) return;
+      setState((s) => ({ ...s, posts: s.posts.map((p) => p.id === postId ? { ...p, comments: [...p.comments, { id: uid("c"), authorId: currentId, text: text.trim(), createdAt: new Date().toISOString() }] } : p) }));
+      const post = state.posts.find((p) => p.id === postId);
+      if (post && post.authorId !== currentId) notify(post.authorId, `${current?.name ?? "زول"} علّق على منشورك.`);
+    },
+    sharePost: (postId) => {
+      if (!currentId) return;
+      const post = state.posts.find((p) => p.id === postId);
+      if (!post) return;
+      setState((s) => ({ ...s, posts: [
+        { id: uid("p"), authorId: currentId, text: post.text, createdAt: new Date().toISOString(), likes: [], shares: 0, comments: [] },
+        ...s.posts.map((p) => p.id === postId ? { ...p, shares: p.shares + 1 } : p),
+      ] }));
+    },
+    deletePost: (postId) => setState((s) => ({ ...s, posts: s.posts.filter((p) => p.id !== postId) })),
+    sendFriendRequest: (toId) => {
+      if (!currentId) return;
+      const exists = state.friendships.some((f) => (f.fromId === currentId && f.toId === toId) || (f.fromId === toId && f.toId === currentId));
+      if (exists) return;
+      const id = uid("f");
+      setState((s) => ({ ...s, friendships: [...s.friendships, { id, fromId: currentId, toId, status: "pending" }] }));
+      notify(toId, `${current?.name ?? "زول"} أرسل ليك طلب صداقة.`);
+    },
+    acceptFriend: (fid) => setState((s) => ({ ...s, friendships: s.friendships.map((f) => f.id === fid ? { ...f, status: "accepted" } : f) })),
+    rejectFriend: (fid) => setState((s) => ({ ...s, friendships: s.friendships.filter((f) => f.id !== fid) })),
+    toggleFollow: (userId) => {
+      if (!currentId || userId === currentId) return;
+      setState((s) => ({ ...s, follows: s.follows.some((f) => f.followerId === currentId && f.followingId === userId)
+        ? s.follows.filter((f) => !(f.followerId === currentId && f.followingId === userId))
+        : [...s.follows, { followerId: currentId, followingId: userId }] }));
+    },
+    createGroup: (name, description) => {
+      const id = uid("g");
+      if (currentId) setState((s) => ({ ...s, groups: [...s.groups, { id, name, description, ownerId: currentId, members: [currentId] }] }));
+      return id;
+    },
+    joinGroup: (gid) => { if (currentId) setState((s) => ({ ...s, groups: s.groups.map((g) => g.id === gid && !g.members.includes(currentId) ? { ...g, members: [...g.members, currentId] } : g) })); },
+    leaveGroup: (gid) => { if (currentId) setState((s) => ({ ...s, groups: s.groups.map((g) => g.id === gid ? { ...g, members: g.members.filter((m) => m !== currentId) } : g) })); },
+    createPage: (name, description) => {
+      const id = uid("pg");
+      if (currentId) setState((s) => ({ ...s, pages: [...s.pages, { id, name, description, ownerId: currentId, followers: [currentId] }] }));
+      return id;
+    },
+    togglePageFollow: (pid) => { if (currentId) setState((s) => ({ ...s, pages: s.pages.map((p) => p.id === pid ? { ...p, followers: p.followers.includes(currentId) ? p.followers.filter((x) => x !== currentId) : [...p.followers, currentId] } : p) })); },
+    addStory: (text) => {
+      if (!currentId || !text.trim()) return;
+      const created = new Date();
+      setState((s) => ({ ...s, stories: [{ id: uid("s"), authorId: currentId, text: text.trim(), createdAt: created.toISOString(), expiresAt: new Date(created.getTime() + 24 * 3600_000).toISOString() }, ...s.stories] }));
+    },
+    startConversation: (otherId) => {
+      const existing = state.conversations.find((c) => c.participantIds.includes(otherId) && currentId && c.participantIds.includes(currentId));
+      if (existing) return existing.id;
+      const id = uid("cv");
+      if (currentId) setState((s) => ({ ...s, conversations: [...s.conversations, { id, participantIds: [currentId, otherId], messages: [] }] }));
+      return id;
+    },
+    sendMessage: (convId, text) => {
+      if (!currentId || !text.trim()) return;
+      setState((s) => ({ ...s, conversations: s.conversations.map((c) => c.id === convId ? { ...c, messages: [...c.messages, { id: uid("m"), senderId: currentId, text: text.trim(), createdAt: new Date().toISOString() }] } : c) }));
+    },
+    markNotificationsRead: () => { if (currentId) setState((s) => ({ ...s, notifications: s.notifications.map((n) => n.userId === currentId ? { ...n, read: true } : n) })); },
+    createListing: (title, price, stateName, description) => {
+      const id = uid("l");
+      if (currentId) setState((s) => ({ ...s, listings: [{ id, sellerId: currentId, title, price, state: stateName, description, createdAt: new Date().toISOString() }, ...s.listings] }));
+      return id;
+    },
+    createEvent: (title, date, location, description) => {
+      const id = uid("e");
+      if (currentId) setState((s) => ({ ...s, events: [...s.events, { id, hostId: currentId, title, date, location, description, attendees: [currentId] }] }));
+      return id;
+    },
+    toggleRsvp: (eid) => { if (currentId) setState((s) => ({ ...s, events: s.events.map((e) => e.id === eid ? { ...e, attendees: e.attendees.includes(currentId) ? e.attendees.filter((x) => x !== currentId) : [...e.attendees, currentId] } : e) })); },
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }), [state, currentId, accounts, loaded]);
+
+  return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
+}
