@@ -70,3 +70,8 @@ NEXT_PUBLIC_APP_URL=https://your-domain
 Next.js 14 (App Router, TypeScript) + Supabase (Auth/Postgres/Storage/
 Realtime) + Tailwind CSS. لا تعديل على أي مشروع آخر، ولا استخدام
 لمفاتيح أو قواعد بيانات مشاريع أخرى.
+
+## أول نشر على Vercel
+
+تم ربط هذا المستودع بمشروع Vercel `wansat` في 2026-10-24،
+وأول نشر يُشغَّل بدفع إلى فرع `main`.
