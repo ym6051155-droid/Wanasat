@@ -1,8 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import { StoreProvider } from "@/lib/store";
-import { Header } from "@/components/Header";
-import { BottomNav } from "@/components/BottomNav";
+import { Shell } from "@/components/Shell";
 import { APP_DESCRIPTION, APP_NAME } from "@/lib/brand";
 
 export const metadata: Metadata = {
@@ -22,9 +21,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="ar" dir="rtl">
       <body>
         <StoreProvider>
-          <Header />
-          <main className="max-w-3xl mx-auto px-3 pt-4 pb-28">{children}</main>
-          <BottomNav />
+          <Shell>{children}</Shell>
         </StoreProvider>
       </body>
     </html>
