@@ -42,7 +42,13 @@ type Store = {
   togglePageFollow: (pid: string) => void;
   addStory: (text: string, media?: { url: string; kind: "image" | "video" }) => void;
   startConversation: (otherId: string) => string;
-  sendMessage: (convId: string, text: string) => void;
+  sendMessage: (convId: string, text: string, media?: { url: string; kind: "image" | "video" | "audio" }, replyToId?: string) => void;
+  toggleReaction: (convId: string, messageId: string, emoji: string) => void;
+  deleteMessageForMe: (convId: string, messageId: string) => void;
+  deleteMessageForEveryone: (convId: string, messageId: string) => void;
+  forwardMessage: (fromConvId: string, messageId: string, toConvId: string) => void;
+  markConversationRead: (convId: string) => void;
+  markConversationsDelivered: () => void;
   markNotificationsRead: () => void;
   createListing: (title: string, price: number, stateName: string, description: string, media?: { url: string; kind: "image" | "video" }) => string;
   createEvent: (title: string, date: string, location: string, description: string) => string;
@@ -227,9 +233,40 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
       if (currentId) setState((s) => ({ ...s, conversations: [...s.conversations, { id, participantIds: [currentId, otherId], messages: [] }] }));
       return id;
     },
-    sendMessage: (convId, text) => {
-      if (!currentId || !text.trim()) return;
-      setState((s) => ({ ...s, conversations: s.conversations.map((c) => c.id === convId ? { ...c, messages: [...c.messages, { id: uid("m"), senderId: currentId, text: text.trim(), createdAt: new Date().toISOString() }] } : c) }));
+    sendMessage: (convId, text, media, replyToId) => {
+      if (!currentId || (!text.trim() && !media?.url)) return;
+      setState((s) => ({ ...s, conversations: s.conversations.map((c) => c.id === convId ? { ...c, messages: [...c.messages, { id: uid("m"), senderId: currentId, text: text.trim(), createdAt: new Date().toISOString(), mediaUrl: media?.url, mediaKind: media?.kind, replyToId }] } : c) }));
+    },
+    toggleReaction: (convId, messageId, emoji) => {
+      if (!currentId) return;
+      setState((s) => ({ ...s, conversations: s.conversations.map((c) => c.id === convId ? { ...c, messages: c.messages.map((m) => {
+        if (m.id !== messageId) return m;
+        const reactions = m.reactions ?? [];
+        const mine = reactions.find((r) => r.userId === currentId && r.emoji === emoji);
+        return { ...m, reactions: mine ? reactions.filter((r) => !(r.userId === currentId && r.emoji === emoji)) : [...reactions, { emoji, userId: currentId }] };
+      }) } : c) }));
+    },
+    deleteMessageForMe: (convId, messageId) => {
+      if (!currentId) return;
+      setState((s) => ({ ...s, conversations: s.conversations.map((c) => c.id === convId ? { ...c, messages: c.messages.map((m) => m.id === messageId ? { ...m, hiddenFor: [...(m.hiddenFor ?? []), currentId] } : m) } : c) }));
+    },
+    deleteMessageForEveryone: (convId, messageId) => {
+      setState((s) => ({ ...s, conversations: s.conversations.map((c) => c.id === convId ? { ...c, messages: c.messages.filter((m) => m.id !== messageId) } : c) }));
+    },
+    forwardMessage: (fromConvId, messageId, toConvId) => {
+      if (!currentId || fromConvId === toConvId) return;
+      const src = state.conversations.find((c) => c.id === fromConvId);
+      const msg = src?.messages.find((m) => m.id === messageId);
+      if (!msg) return;
+      setState((s) => ({ ...s, conversations: s.conversations.map((c) => c.id === toConvId ? { ...c, messages: [...c.messages, { id: uid("m"), senderId: currentId, text: msg.text, createdAt: new Date().toISOString(), mediaUrl: msg.mediaUrl, mediaKind: msg.mediaKind, forwarded: true }] } : c) }));
+    },
+    markConversationRead: (convId) => {
+      if (!currentId) return;
+      setState((s) => ({ ...s, conversations: s.conversations.map((c) => c.id === convId ? { ...c, messages: c.messages.map((m) => m.senderId !== currentId && !m.read ? { ...m, delivered: true, read: true } : m) } : c) }));
+    },
+    markConversationsDelivered: () => {
+      if (!currentId) return;
+      setState((s) => ({ ...s, conversations: s.conversations.map((c) => c.participantIds.includes(currentId) ? { ...c, messages: c.messages.map((m) => m.senderId !== currentId && !m.delivered ? { ...m, delivered: true } : m) } : c) }));
     },
     markNotificationsRead: () => { if (currentId) setState((s) => ({ ...s, notifications: s.notifications.map((n) => n.userId === currentId ? { ...n, read: true } : n) })); },
     createListing: (title, price, stateName, description, media) => {

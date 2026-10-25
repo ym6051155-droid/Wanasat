@@ -14,7 +14,21 @@ export type Follow = { followerId: string; followingId: string };
 export type Group = { id: string; name: string; description: string; ownerId: string; members: string[] };
 export type PageItem = { id: string; name: string; description: string; ownerId: string; followers: string[] };
 export type Story = { id: string; authorId: string; text: string; mediaUrl?: string; mediaKind?: "image" | "video"; createdAt: string; expiresAt: string };
-export type ChatMessage = { id: string; senderId: string; text: string; createdAt: string };
+export type ChatReaction = { emoji: string; userId: string };
+export type ChatMessage = {
+  id: string; senderId: string; text: string; createdAt: string;
+  // Receipts (local demo): delivered = reached the other person's list,
+  // read = the other person opened this conversation. Old messages have
+  // neither flag and are treated as merely sent.
+  delivered?: boolean; read?: boolean;
+  replyToId?: string;
+  reactions?: ChatReaction[];
+  mediaUrl?: string; mediaKind?: "image" | "video" | "audio";
+  forwarded?: boolean;
+  // Delete-for-me: user ids for whom this message is hidden. Delete for
+  // everyone removes the message from the conversation entirely.
+  hiddenFor?: string[];
+};
 export type Conversation = { id: string; participantIds: string[]; messages: ChatMessage[] };
 export type NotificationItem = { id: string; userId: string; text: string; createdAt: string; read: boolean };
 export type Listing = {

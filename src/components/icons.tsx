@@ -77,6 +77,21 @@ export const VerifiedBadge = ({ size = 18 }: P) => (
     <path d="M8 12.5l2.5 2.5L16.5 9" fill="none" stroke="#fff" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
   </svg>
 );
+export const CheckIcon = (p: P) => (
+  <Svg {...p}><path d="M4 12.5l5 5L20 6.5" /></Svg>
+);
+export const DoubleCheckIcon = (p: P) => (
+  <Svg {...p}><path d="M2.5 12.5l4 4L13 10M9 12.5l4 4L21.5 10" strokeWidth={1.8} /></Svg>
+);
+export const MicIcon = (p: P) => (
+  <Svg {...p}><rect x="9" y="3" width="6" height="11" rx="3" /><path d="M5 11a7 7 0 0 0 14 0M12 18v3" /></Svg>
+);
+export const AttachIcon = (p: P) => (
+  <Svg {...p}><path d="M12 3l7 7-8 8a4 4 0 0 1-5.5-5.5L13 5l5 5-6 6" /><circle cx="18" cy="6" r="1" fill="currentColor" stroke="none" /></Svg>
+);
+export const SearchIcon = (p: P) => (
+  <Svg {...p}><circle cx="11" cy="11" r="7" /><path d="M21 21l-4.3-4.3" /></Svg>
+);
 export const ReelsIcon = (p: P) => (
   <Svg {...p}><rect x="3" y="5" width="18" height="14" rx="3" /><path d="M10 9.5l5 2.5-5 2.5z" fill="currentColor" stroke="none" /></Svg>
 );
