@@ -3,11 +3,12 @@ import React, { createContext, useContext, useEffect, useMemo, useState } from "
 import type { AppState, Profile } from "./types";
 import { seedState } from "./seed";
 
-type Accounts = Record<string, { id: string; password: string }>;
+type Accounts = Record<string, { id: string; password: string; provider?: string }>;
 const STATE_KEY = "wansat_state_v1";
 const USER_KEY = "wansat_user_v1";
 const ACCOUNTS_KEY = "wansat_accounts_v1";
 const seedAccounts: Accounts = {
+  "admin@wansat.sd": { id: "u0", password: "admin" },
   "demo@wansat.sd": { id: "u1", password: "demo" },
   "mariam@wansat.sd": { id: "u2", password: "demo" },
   "omar@wansat.sd": { id: "u3", password: "demo" },
@@ -22,7 +23,12 @@ type Store = {
   signup: (name: string, email: string, password: string, stateName: string, bio: string) => string | null;
   logout: () => void;
   profileById: (id: string) => Profile | undefined;
-  createPost: (text: string, groupId?: string, pageId?: string) => void;
+  updateProfile: (name: string, bio: string, stateName: string, avatarColor: string) => string | null;
+  changePassword: (newPassword: string) => string | null;
+  resetPassword: (email: string, newPassword: string) => string | null;
+  signInWithGoogle: () => void;
+  toggleVerification: (profileId: string) => void;
+  createPost: (text: string, groupId?: string, pageId?: string, media?: { url: string; kind: "image" | "video" }) => void;
   toggleLike: (postId: string) => void;
   addComment: (postId: string, text: string) => void;
   sharePost: (postId: string) => void;
@@ -59,7 +65,14 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     try {
       const s = localStorage.getItem(STATE_KEY);
-      if (s) setState({ ...seedState, ...JSON.parse(s) });
+      if (s) {
+        const saved = JSON.parse(s) as AppState;
+        // Merge seed profiles missing from older saved state (e.g. the admin
+        // profile added later) without touching the user's own saved data.
+        const known = new Set(saved.profiles.map((p) => p.id));
+        const mergedProfiles = [...saved.profiles, ...seedState.profiles.filter((p) => !known.has(p.id))];
+        setState({ ...seedState, ...saved, profiles: mergedProfiles });
+      }
       const u = localStorage.getItem(USER_KEY);
       if (u) setCurrentId(u);
       const a = localStorage.getItem(ACCOUNTS_KEY);
@@ -103,9 +116,47 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
     },
     logout: () => setCurrentId(null),
     profileById,
-    createPost: (text, groupId, pageId) => {
-      if (!currentId || !text.trim()) return;
-      setState((s) => ({ ...s, posts: [{ id: uid("p"), authorId: currentId, groupId, pageId, text: text.trim(), createdAt: new Date().toISOString(), likes: [], shares: 0, comments: [] }, ...s.posts] }));
+    updateProfile: (name, bio, stateName, avatarColor) => {
+      if (!currentId) return "سجّل دخول أولاً.";
+      if (!name.trim()) return "الاسم ما ممكن يكون فاضي.";
+      setState((s) => ({ ...s, profiles: s.profiles.map((p) => p.id === currentId ? { ...p, name: name.trim(), bio: bio.trim(), state: stateName.trim() || p.state, avatarColor } : p) }));
+      return null;
+    },
+    changePassword: (newPassword) => {
+      if (!currentId) return "سجّل دخول أولاً.";
+      if (newPassword.length < 4) return "كلمة السر لازم تكون 4 أحرف على الأقل.";
+      const email = state.profiles.find((p) => p.id === currentId)?.email.toLowerCase();
+      if (!email) return "الحساب ما موجود.";
+      setAccounts((a) => ({ ...a, [email]: { ...(a[email] ?? { id: currentId }), password: newPassword } }));
+      return null;
+    },
+    resetPassword: (email, newPassword) => {
+      const key = email.trim().toLowerCase();
+      const acc = accounts[key];
+      if (!acc) return "الحساب ما موجود.";
+      if (newPassword.length < 4) return "كلمة السر لازم تكون 4 أحرف على الأقل.";
+      setAccounts((a) => ({ ...a, [key]: { ...acc, password: newPassword } }));
+      return null;
+    },
+    signInWithGoogle: () => {
+      // Demo mode: a clearly demo Google-linked local account. The login
+      // page labels demo mode, and this profile is marked provider "google".
+      const key = "google@wansat.sd";
+      const existing = state.profiles.find((p) => p.email === key);
+      if (existing) { setCurrentId(existing.id); return; }
+      const id = "u_google";
+      const profile: Profile = { id, name: "مستخدم قوقل (تجريبي)", email: key, bio: "حساب تجريبي مرتبط بقوقل.", state: "السودان", avatarColor: "#0e7c7b", coverColor: "#0a5e5d", provider: "google" };
+      setState((s) => ({ ...s, profiles: [...s.profiles, profile] }));
+      setAccounts((a) => ({ ...a, [key]: { id, password: "", provider: "google" } }));
+      setCurrentId(id);
+    },
+    toggleVerification: (profileId) => {
+      if (!current?.isAdmin) return;
+      setState((s) => ({ ...s, profiles: s.profiles.map((p) => p.id === profileId ? { ...p, verified: !p.verified } : p) }));
+    },
+    createPost: (text, groupId, pageId, media) => {
+      if (!currentId || (!text.trim() && !media)) return;
+      setState((s) => ({ ...s, posts: [{ id: uid("p"), authorId: currentId, groupId, pageId, text: text.trim(), mediaUrl: media?.url, mediaKind: media?.kind, createdAt: new Date().toISOString(), likes: [], shares: 0, comments: [] }, ...s.posts] }));
     },
     toggleLike: (postId) => {
       if (!currentId) return;
@@ -130,7 +181,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
       const post = state.posts.find((p) => p.id === postId);
       if (!post) return;
       setState((s) => ({ ...s, posts: [
-        { id: uid("p"), authorId: currentId, text: post.text, createdAt: new Date().toISOString(), likes: [], shares: 0, comments: [] },
+        { id: uid("p"), authorId: currentId, text: post.text, mediaUrl: post.mediaUrl, mediaKind: post.mediaKind, imageUrl: post.imageUrl, createdAt: new Date().toISOString(), likes: [], shares: 0, comments: [] },
         ...s.posts.map((p) => p.id === postId ? { ...p, shares: p.shares + 1 } : p),
       ] }));
     },

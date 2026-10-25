@@ -1,11 +1,12 @@
 export type Profile = {
   id: string; name: string; email: string; bio: string; state: string;
   avatarColor: string; coverColor: string;
+  verified?: boolean; isAdmin?: boolean; provider?: string;
 };
 export type CommentItem = { id: string; authorId: string; text: string; createdAt: string };
 export type Post = {
   id: string; authorId: string; groupId?: string; pageId?: string;
-  text: string; imageUrl?: string; createdAt: string;
+  text: string; imageUrl?: string; mediaUrl?: string; mediaKind?: "image" | "video"; createdAt: string;
   likes: string[]; shares: number; comments: CommentItem[];
 };
 export type Friendship = { id: string; fromId: string; toId: string; status: "pending" | "accepted" };

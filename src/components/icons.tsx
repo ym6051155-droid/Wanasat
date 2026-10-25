@@ -59,3 +59,24 @@ export const EventsIcon = (p: P) => (
 export const ProfileIcon = (p: P) => (
   <Svg {...p}><circle cx="12" cy="8" r="4" /><path d="M4 20c1-3.5 4-5 8-5s7 1.5 8 5" /></Svg>
 );
+export const EyeIcon = (p: P) => (
+  <Svg {...p}><path d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12z" /><circle cx="12" cy="12" r="3" /></Svg>
+);
+export const EyeOffIcon = (p: P) => (
+  <Svg {...p}><path d="M2.5 12S6 5.5 12 5.5c2.2 0 4.2 1 5.8 2.5M17.5 17.5C15.8 18.3 14 18.5 12 18.5 6 18.5 2.5 12 2.5 12c.7-1.3 1.7-2.6 3-3.7" /><path d="M3 3l18 18" /></Svg>
+);
+export const GoogleIcon = ({ size = 22 }: P) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" aria-hidden="true">
+    <circle cx="12" cy="12" r="10.5" fill="none" stroke="currentColor" strokeWidth="1.8" />
+    <text x="12" y="16.5" textAnchor="middle" fontSize="12" fontWeight="800" fill="currentColor" fontFamily="system-ui, sans-serif">G</text>
+  </svg>
+);
+export const VerifiedBadge = ({ size = 18 }: P) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" aria-label="حساب موثّق" role="img">
+    <circle cx="12" cy="12" r="10" fill="#0e7c7b" />
+    <path d="M8 12.5l2.5 2.5L16.5 9" fill="none" stroke="#fff" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
+  </svg>
+);
+export const ReelsIcon = (p: P) => (
+  <Svg {...p}><rect x="3" y="5" width="18" height="14" rx="3" /><path d="M10 9.5l5 2.5-5 2.5z" fill="currentColor" stroke="none" /></Svg>
+);

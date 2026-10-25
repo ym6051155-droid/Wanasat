@@ -3,7 +3,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
 import { useStore } from "@/lib/store";
-import { BellIcon, EventsIcon, FriendsIcon, GroupsIcon, HomeIcon, MarketplaceIcon, MessagesIcon, MoreIcon, PagesIcon, ProfileIcon } from "./icons";
+import { BellIcon, EventsIcon, FriendsIcon, GroupsIcon, HomeIcon, MarketplaceIcon, MessagesIcon, MoreIcon, PagesIcon, ProfileIcon, ReelsIcon } from "./icons";
 
 const tabs = [
   { href: "/", label: "الرئيسية", Icon: HomeIcon },
@@ -56,6 +56,7 @@ export function BottomNav() {
             <div className="grid grid-cols-2 gap-2">
               <button onClick={() => closeAndGo("/pages")} className="rounded-2xl border px-4 py-3.5 font-black text-right flex items-center gap-2"><PagesIcon size={20} /> الصفحات</button>
               <button onClick={() => closeAndGo("/events")} className="rounded-2xl border px-4 py-3.5 font-black text-right flex items-center gap-2"><EventsIcon size={20} /> الفعاليات</button>
+              <button onClick={() => closeAndGo("/reels")} className="rounded-2xl border px-4 py-3.5 font-black text-right flex items-center gap-2"><ReelsIcon size={20} /> الريلز</button>
               <button onClick={() => closeAndGo("/notifications")} className="rounded-2xl border px-4 py-3.5 font-black text-right flex items-center gap-2"><BellIcon size={20} /> الإشعارات</button>
               {current ? (
                 <>

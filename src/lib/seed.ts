@@ -5,6 +5,7 @@ const h = (n: number) => new Date(now - n * 3600_000).toISOString();
 // Stories expire 24h after creation: demo stories are 2–5h old, so they are live.
 export const seedState: AppState = {
   profiles: [
+    { id: "u0", name: "إدارة ونسات", email: "admin@wansat.sd", bio: "حساب إدارة المنصة: توثيق الحسابات ومتابعة المحتوى.", state: "الخرطوم", avatarColor: "#0a5e5d", coverColor: "#0a5e5d", verified: true, isAdmin: true },
     { id: "u1", name: "محمد", email: "demo@wansat.sd", bio: "زول ونسة ساكت، بحب الخرطوم وناسها.", state: "الخرطوم", avatarColor: "#0e7c7b", coverColor: "#0a5e5d" },
     { id: "u2", name: "مريم أحمد", email: "mariam@wansat.sd", bio: "من مدني، بحب الشاي والقصص.", state: "ولاية الجزيرة", avatarColor: "#b45309", coverColor: "#e8a317" },
     { id: "u3", name: "عمر خالد", email: "omar@wansat.sd", bio: "بورتسودان والبحر الأحمر.", state: "البحر الأحمر", avatarColor: "#1d4ed8", coverColor: "#0e7c7b" },

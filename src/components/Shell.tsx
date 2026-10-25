@@ -9,7 +9,7 @@ import { useStore } from "@/lib/store";
 export function Shell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const { current } = useStore();
-  const isAuthPage = pathname === "/login" || pathname === "/signup";
+  const isAuthPage = pathname === "/login" || pathname === "/signup" || pathname === "/forgot-password";
   // في الرئيسية: لا يظهر الهيدر ولا الشريط أبداً قبل معرفة حالة الدخول،
   // حتى في التحميل البارد الأول — الضيف يرى صفحة فارغة ثم الدخول،
   // والمسجّل يرى الشريطين بعد تحميل جلسته فقط.

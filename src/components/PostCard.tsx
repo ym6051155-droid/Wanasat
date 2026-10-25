@@ -2,7 +2,7 @@
 import Link from "next/link";
 import { useState } from "react";
 import { Avatar } from "./Avatar";
-import { CommentIcon, HeartIcon, ShareIcon } from "./icons";
+import { CommentIcon, HeartIcon, ShareIcon, VerifiedBadge } from "./icons";
 import { timeAgo } from "@/lib/format";
 import { useStore } from "@/lib/store";
 import type { Post } from "@/lib/types";
@@ -20,7 +20,10 @@ export function PostCard({ post }: { post: Post }) {
       <div className="flex items-center gap-2">
         <Avatar profile={author} />
         <div className="flex-1">
-          <div className="font-black">{author?.name ?? "مستخدم"}</div>
+          <div className="font-black flex items-center gap-1.5">
+            {author?.name ?? "مستخدم"}
+            {author?.verified && <VerifiedBadge size={18} />}
+          </div>
           <div className="text-xs text-gray-500">
             {timeAgo(post.createdAt)}
             {group && <> · في <Link href={`/groups/${group.id}`} className="font-bold">{group.name}</Link></>}
@@ -31,7 +34,12 @@ export function PostCard({ post }: { post: Post }) {
           <button onClick={() => deletePost(post.id)} className="text-xs text-red-600 font-black bg-red-50 rounded-full px-3 py-1.5">حذف</button>
         )}
       </div>
-      <p className="mt-3 whitespace-pre-wrap leading-relaxed text-[15px]">{post.text}</p>
+      {post.text.trim() && <p className="mt-3 whitespace-pre-wrap leading-relaxed text-[15px]">{post.text}</p>}
+      {(post.mediaUrl || post.imageUrl) && (post.mediaKind === "video" ? (
+        <video src={post.mediaUrl ?? post.imageUrl} controls playsInline className="mt-3 w-full rounded-[20px] max-h-[420px] bg-black" />
+      ) : (
+        <img src={post.mediaUrl ?? post.imageUrl} alt="صورة المنشور" className="mt-3 w-full rounded-[20px] object-cover max-h-[420px]" />
+      ))}
       <div className="mt-3 text-xs text-gray-500">{post.likes.length} إعجاب · {post.comments.length} تعليق · {post.shares} مشاركة</div>
       <div className="mt-3 pt-3 border-t flex gap-2 text-sm font-black">
         <button onClick={() => toggleLike(post.id)} className={`flex-1 rounded-full py-2.5 flex items-center justify-center gap-1.5 ${liked ? "bg-nile-light text-nile-dark" : "bg-sand text-ink"}`}><HeartIcon size={18} filled={liked} /> {liked ? "أعجبني" : "إعجاب"}</button>
