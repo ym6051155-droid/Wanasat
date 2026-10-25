@@ -8,12 +8,12 @@ export function Composer({ groupId, pageId }: { groupId?: string; pageId?: strin
   const [text, setText] = useState("");
   if (!current) return null;
   return (
-    <form className="bg-white rounded-2xl shadow-sm border p-4" onSubmit={(e) => { e.preventDefault(); createPost(text, groupId, pageId); setText(""); }}>
+    <form className="surface rounded-[24px] shadow-[0_10px_30px_rgba(23,32,42,0.08)] border p-4" onSubmit={(e) => { e.preventDefault(); createPost(text, groupId, pageId); setText(""); }}>
       <div className="flex gap-2">
         <Avatar profile={current} />
-        <textarea value={text} onChange={(e) => setText(e.target.value)} placeholder="شنو في بالك؟" rows={2} className="flex-1 border rounded-2xl px-3 py-2 text-sm resize-none" />
+        <textarea value={text} onChange={(e) => setText(e.target.value)} placeholder="شنو في بالك؟" rows={2} className="flex-1 border rounded-[20px] px-4 py-3 text-sm resize-none bg-sand text-ink placeholder:text-gray-500" />
       </div>
-      <button className="mt-3 w-full bg-nile text-white rounded-full py-2 font-bold">نشر</button>
+      <button className="mt-3 w-full bg-gradient-to-l from-nile to-nile-dark text-white rounded-full py-3 font-black shadow-[0_8px_20px_rgba(14,124,123,0.35)]">نشر</button>
     </form>
   );
 }

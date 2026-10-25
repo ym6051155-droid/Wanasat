@@ -4,42 +4,48 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { APP_NAME } from "@/lib/brand";
 import { useStore } from "@/lib/store";
-
-const links = [
-  { href: "/", label: "الرئيسية" },
-  { href: "/friends", label: "الأصدقاء" },
-  { href: "/groups", label: "المجموعات" },
-  { href: "/pages", label: "الصفحات" },
-  { href: "/marketplace", label: "السوق" },
-  { href: "/events", label: "الفعاليات" },
-  { href: "/messages", label: "الدردشة" },
-];
+import { Avatar } from "./Avatar";
 
 export function Header() {
-  const { current, state, logout } = useStore();
+  const { current, state } = useStore();
   const router = useRouter();
   const [q, setQ] = useState("");
   const unread = current ? state.notifications.filter((n) => n.userId === current.id && !n.read).length : 0;
   return (
-    <header className="sticky top-0 z-40 bg-white border-b shadow-sm">
-      <div className="max-w-3xl mx-auto px-3 py-2 flex items-center gap-3">
-        <Link href="/" className="font-black text-xl text-nile shrink-0">{APP_NAME}</Link>
-        <form className="flex-1" onSubmit={(e) => { e.preventDefault(); router.push(`/search?q=${encodeURIComponent(q)}`); }}>
-          <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="ابحث عن ناس، مجموعات، صفحات..." className="w-full border rounded-full px-3 py-1.5 text-sm bg-sand" />
+    <header className="surface sticky top-0 z-40 border-b shadow-[0_4px_20px_rgba(23,32,42,0.06)]">
+      <div className="max-w-3xl mx-auto px-3 py-2.5 flex items-center gap-2.5">
+        <Link href="/" className="font-black text-[22px] leading-none text-nile shrink-0" aria-label={APP_NAME}>
+          {APP_NAME}
+          <span className="block text-[10px] font-bold text-saffron leading-none mt-0.5">ونسة سودانية أصيلة</span>
+        </Link>
+        <form className="flex-1 min-w-0" onSubmit={(e) => { e.preventDefault(); router.push(`/search?q=${encodeURIComponent(q)}`); }}>
+          <input
+            value={q}
+            onChange={(e) => setQ(e.target.value)}
+            placeholder="ابحث عن ناس، مجموعات، صفحات..."
+            className="w-full border rounded-full px-4 py-2.5 text-sm bg-sand text-ink placeholder:text-gray-500"
+          />
         </form>
-        <Link href="/notifications" className="relative shrink-0 font-bold text-sm">
-          🔔{unread > 0 && <span className="absolute -top-2 -left-2 bg-red-600 text-white text-[10px] rounded-full px-1.5">{unread}</span>}
+        <Link
+          href="/notifications"
+          className="relative shrink-0 w-11 h-11 rounded-full bg-nile-light text-nile-dark flex items-center justify-center text-lg font-bold"
+          aria-label="الإشعارات"
+        >
+          🔔
+          {unread > 0 && (
+            <span className="absolute -top-1 -left-1 bg-red-600 text-white text-[10px] font-black rounded-full min-w-[20px] h-5 px-1 flex items-center justify-center">
+              {unread}
+            </span>
+          )}
         </Link>
         {current ? (
-          <button onClick={() => { logout(); router.push("/login"); }} className="shrink-0 text-sm font-bold">خروج</button>
+          <Avatar profile={current} size={44} />
         ) : (
-          <Link href="/login" className="shrink-0 text-sm font-bold">دخول</Link>
+          <Link href="/login" className="shrink-0 bg-nile text-white rounded-full px-5 h-11 flex items-center text-sm font-black shadow-[0_6px_16px_rgba(14,124,123,0.35)]">
+            دخول
+          </Link>
         )}
       </div>
-      <nav className="max-w-3xl mx-auto px-3 pb-2 flex gap-3 overflow-x-auto text-sm whitespace-nowrap">
-        {links.map((l) => <Link key={l.href} href={l.href} className="font-bold">{l.label}</Link>)}
-        {current && <Link href={`/profile/${current.id}`} className="font-bold">ملفي</Link>}
-      </nav>
     </header>
   );
 }

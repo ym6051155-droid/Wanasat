@@ -2,9 +2,35 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ونسات — تصميم موحد فاخر: هوية النيل والرمل، يعمل بنفس الشكل على أندرويد وiOS */
 :root { color-scheme: light; }
-html { direction: rtl; }
-body { background: #f7f3ec; color: #17202a; font-family: system-ui, -apple-system, "Segoe UI", Tahoma, Arial, sans-serif; }
+html { direction: rtl; scroll-behavior: smooth; }
+body {
+  background: #f2ede3;
+  color: #17202a;
+  font-family: system-ui, -apple-system, "Segoe UI", Tahoma, Arial, sans-serif;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-font-smoothing: antialiased;
+}
 a { color: #0e7c7b; }
 input, textarea, select { outline: none; }
-input:focus, textarea:focus, select:focus { border-color: #0e7c7b !important; box-shadow: 0 0 0 2px #e6f4f3; }
+input:focus, textarea:focus, select:focus { border-color: #0e7c7b !important; box-shadow: 0 0 0 3px #e6f4f3; }
+
+/* سطح البطاقات والشريطين: أبيض في الوضع الفاتح، نيل داكن في الوضع الداكن */
+.surface {
+  background: #ffffff;
+  color: #17202a;
+  border-color: #eae2d2;
+}
+@media (prefers-color-scheme: dark) {
+  :root { color-scheme: dark; }
+  body { background: #0d1716; color: #eef4f3; }
+  .surface { background: #152524; color: #edf5f4; border-color: #243a39; }
+  input:focus, textarea:focus, select:focus { box-shadow: 0 0 0 3px #164241; }
+}
+
+/* هوامش أمان الشاشات الحديثة (نوتش وشريط النظام) */
+.pb-safe { padding-bottom: env(safe-area-inset-bottom); }
+.pt-safe { padding-top: env(safe-area-inset-top); }
+.no-scrollbar::-webkit-scrollbar { display: none; }
+.no-scrollbar { scrollbar-width: none; }

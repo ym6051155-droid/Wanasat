@@ -10,12 +10,12 @@ export default function HomePage() {
   const { state, current } = useStore();
   if (!current) {
     return (
-      <div className="bg-white rounded-3xl shadow-sm border p-6 text-center">
-        <h1 className="text-3xl font-black text-nile">{APP_NAME}</h1>
-        <p className="mt-2 text-gray-600">ونسة سودانية أصيلة — أصدقاء، مجموعات، صفحات، سوق، وفعاليات.</p>
-        <div className="mt-5 flex gap-2 justify-center">
-          <Link href="/login" className="bg-nile text-white rounded-full px-6 py-2 font-bold">دخول</Link>
-          <Link href="/signup" className="border rounded-full px-6 py-2 font-bold">حساب جديد</Link>
+      <div className="surface rounded-[32px] shadow-[0_16px_40px_rgba(23,32,42,0.10)] border p-8 text-center">
+        <h1 className="text-4xl font-black text-nile">{APP_NAME}</h1>
+        <p className="mt-3 text-gray-600 leading-relaxed">ونسة سودانية أصيلة — أصدقاء، مجموعات، صفحات، سوق، وفعاليات.</p>
+        <div className="mt-6 flex gap-2 justify-center">
+          <Link href="/login" className="bg-gradient-to-l from-nile to-nile-dark text-white rounded-full px-8 py-3 font-black shadow-[0_8px_20px_rgba(14,124,123,0.35)]">دخول</Link>
+          <Link href="/signup" className="border rounded-full px-8 py-3 font-black">حساب جديد</Link>
         </div>
       </div>
     );

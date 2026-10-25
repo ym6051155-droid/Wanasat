@@ -11,23 +11,23 @@ export function StoryBar() {
     .sort((a, b) => b.createdAt.localeCompare(a.createdAt));
   const open = live.find((s) => s.id === openId);
   return (
-    <section className="bg-white rounded-2xl shadow-sm border p-3">
-      <div className="flex gap-3 overflow-x-auto pb-1">
+    <section className="surface rounded-[24px] shadow-[0_10px_30px_rgba(23,32,42,0.08)] border p-3">
+      <div className="no-scrollbar flex gap-3 overflow-x-auto pb-1">
         {live.map((s) => {
           const a = profileById(s.authorId);
           if (!a) return null;
           return (
             <button key={s.id} onClick={() => setOpenId(s.id)} className="flex flex-col items-center gap-1 shrink-0">
-              <span className="rounded-full p-0.5 border-2 border-saffron"><Avatar profile={a} size={52} /></span>
-              <span className="text-xs max-w-[64px] truncate">{a.name}</span>
+              <span className="rounded-full p-[3px] bg-gradient-to-tr from-saffron via-nile to-saffron"><span className="block rounded-full p-[2px] bg-white"><Avatar profile={a} size={52} /></span></span>
+              <span className="text-xs font-bold max-w-[64px] truncate">{a.name}</span>
             </button>
           );
         })}
       </div>
       {current && (
         <form className="flex gap-2 mt-3" onSubmit={(e) => { e.preventDefault(); addStory(text); setText(""); }}>
-          <input value={text} onChange={(e) => setText(e.target.value)} placeholder="قصة جديدة (تختفي بعد 24 ساعة)" className="flex-1 border rounded-full px-3 py-2 text-sm" />
-          <button className="bg-saffron rounded-full px-4 font-bold text-sm">نشر قصة</button>
+          <input value={text} onChange={(e) => setText(e.target.value)} placeholder="قصة جديدة (تختفي بعد 24 ساعة)" className="flex-1 border rounded-full px-4 py-2.5 text-sm bg-sand text-ink placeholder:text-gray-500" />
+          <button className="bg-saffron rounded-full px-5 font-black text-sm">نشر قصة</button>
         </form>
       )}
       {open && (
