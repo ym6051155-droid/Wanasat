@@ -3,13 +3,14 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
 import { useStore } from "@/lib/store";
+import { BellIcon, EventsIcon, FriendsIcon, GroupsIcon, HomeIcon, MarketplaceIcon, MessagesIcon, MoreIcon, PagesIcon, ProfileIcon } from "./icons";
 
 const tabs = [
-  { href: "/", label: "الرئيسية", icon: "🏠" },
-  { href: "/friends", label: "الأصدقاء", icon: "👥" },
-  { href: "/groups", label: "المجموعات", icon: "🗂️" },
-  { href: "/marketplace", label: "السوق", icon: "🛍️" },
-  { href: "/messages", label: "الدردشة", icon: "💬" },
+  { href: "/", label: "الرئيسية", Icon: HomeIcon },
+  { href: "/friends", label: "الأصدقاء", Icon: FriendsIcon },
+  { href: "/groups", label: "المجموعات", Icon: GroupsIcon },
+  { href: "/marketplace", label: "السوق", Icon: MarketplaceIcon },
+  { href: "/messages", label: "الدردشة", Icon: MessagesIcon },
 ];
 
 export function BottomNav() {
@@ -31,7 +32,7 @@ export function BottomNav() {
                 isActive(t.href) ? "text-nile" : "text-gray-500"
               }`}
             >
-              <span className={`text-xl leading-none px-3 py-1 rounded-full ${isActive(t.href) ? "bg-nile-light" : ""}`}>{t.icon}</span>
+              <span className={`leading-none px-3 py-1.5 rounded-full flex items-center ${isActive(t.href) ? "bg-nile-light" : ""}`}><t.Icon size={24} /></span>
               {t.label}
             </Link>
           ))}
@@ -40,7 +41,7 @@ export function BottomNav() {
             className="flex-1 flex flex-col items-center justify-center gap-0.5 min-h-[58px] rounded-2xl text-[11px] font-black text-gray-500"
             aria-label="المزيد"
           >
-            <span className="text-xl leading-none px-3 py-1 rounded-full">⋯</span>
+            <span className="leading-none px-3 py-1.5 rounded-full flex items-center"><MoreIcon size={24} /></span>
             المزيد
           </button>
         </div>
@@ -53,12 +54,12 @@ export function BottomNav() {
           >
             <div className="w-12 h-1.5 rounded-full bg-gray-300 mx-auto mb-4" />
             <div className="grid grid-cols-2 gap-2">
-              <button onClick={() => closeAndGo("/pages")} className="rounded-2xl border px-4 py-3.5 font-black text-right">📄 الصفحات</button>
-              <button onClick={() => closeAndGo("/events")} className="rounded-2xl border px-4 py-3.5 font-black text-right">🎉 الفعاليات</button>
-              <button onClick={() => closeAndGo("/notifications")} className="rounded-2xl border px-4 py-3.5 font-black text-right">🔔 الإشعارات</button>
+              <button onClick={() => closeAndGo("/pages")} className="rounded-2xl border px-4 py-3.5 font-black text-right flex items-center gap-2"><PagesIcon size={20} /> الصفحات</button>
+              <button onClick={() => closeAndGo("/events")} className="rounded-2xl border px-4 py-3.5 font-black text-right flex items-center gap-2"><EventsIcon size={20} /> الفعاليات</button>
+              <button onClick={() => closeAndGo("/notifications")} className="rounded-2xl border px-4 py-3.5 font-black text-right flex items-center gap-2"><BellIcon size={20} /> الإشعارات</button>
               {current ? (
                 <>
-                  <button onClick={() => closeAndGo(`/profile/${current.id}`)} className="rounded-2xl border px-4 py-3.5 font-black text-right">👤 ملفي</button>
+                  <button onClick={() => closeAndGo(`/profile/${current.id}`)} className="rounded-2xl border px-4 py-3.5 font-black text-right flex items-center gap-2"><ProfileIcon size={20} /> ملفي</button>
                   <button
                     onClick={() => { setMoreOpen(false); logout(); router.push("/login"); }}
                     className="rounded-2xl border px-4 py-3.5 font-black text-right text-red-600 col-span-2"

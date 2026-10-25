@@ -5,6 +5,7 @@ import { useState } from "react";
 import { APP_NAME } from "@/lib/brand";
 import { useStore } from "@/lib/store";
 import { Avatar } from "./Avatar";
+import { BellIcon } from "./icons";
 
 export function Header() {
   const { current, state } = useStore();
@@ -16,7 +17,6 @@ export function Header() {
       <div className="max-w-3xl mx-auto px-3 py-2.5 flex items-center gap-2.5">
         <Link href="/" className="font-black text-[22px] leading-none text-nile shrink-0" aria-label={APP_NAME}>
           {APP_NAME}
-          <span className="block text-[10px] font-bold text-saffron leading-none mt-0.5">ونسة سودانية أصيلة</span>
         </Link>
         <form className="flex-1 min-w-0" onSubmit={(e) => { e.preventDefault(); router.push(`/search?q=${encodeURIComponent(q)}`); }}>
           <input
@@ -31,7 +31,7 @@ export function Header() {
           className="relative shrink-0 w-11 h-11 rounded-full bg-nile-light text-nile-dark flex items-center justify-center text-lg font-bold"
           aria-label="الإشعارات"
         >
-          🔔
+          <BellIcon size={22} />
           {unread > 0 && (
             <span className="absolute -top-1 -left-1 bg-red-600 text-white text-[10px] font-black rounded-full min-w-[20px] h-5 px-1 flex items-center justify-center">
               {unread}

@@ -4,6 +4,6 @@
 // the npm package name to match — it is not shown in the UI.)
 export const APP_NAME = "ونسات";
 export const APP_NAME_EN = "Wansat";
-export const APP_TAGLINE = "ونسة سودانية أصيلة";
+export const APP_TAGLINE = "منصة تواصل سودانية";
 export const APP_DESCRIPTION =
   "ونسات — منصة تواصل اجتماعي سودانية: منشورات، أصدقاء، مجموعات، صفحات، قصص، دردشة، سوق، وفعاليات.";

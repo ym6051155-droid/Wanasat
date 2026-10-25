@@ -2,6 +2,7 @@
 import Link from "next/link";
 import { useState } from "react";
 import { Avatar } from "./Avatar";
+import { CommentIcon, HeartIcon, ShareIcon } from "./icons";
 import { timeAgo } from "@/lib/format";
 import { useStore } from "@/lib/store";
 import type { Post } from "@/lib/types";
@@ -33,9 +34,9 @@ export function PostCard({ post }: { post: Post }) {
       <p className="mt-3 whitespace-pre-wrap leading-relaxed text-[15px]">{post.text}</p>
       <div className="mt-3 text-xs text-gray-500">{post.likes.length} إعجاب · {post.comments.length} تعليق · {post.shares} مشاركة</div>
       <div className="mt-3 pt-3 border-t flex gap-2 text-sm font-black">
-        <button onClick={() => toggleLike(post.id)} className={`flex-1 rounded-full py-2.5 ${liked ? "bg-nile-light text-nile-dark" : "bg-sand text-ink"}`}>{liked ? "♥ أعجبني" : "♡ إعجاب"}</button>
-        <button onClick={() => setShowComments((v) => !v)} className="flex-1 rounded-full py-2.5 bg-sand text-ink">💬 تعليق</button>
-        <button onClick={() => sharePost(post.id)} className="flex-1 rounded-full py-2.5 bg-sand text-ink">↗ مشاركة</button>
+        <button onClick={() => toggleLike(post.id)} className={`flex-1 rounded-full py-2.5 flex items-center justify-center gap-1.5 ${liked ? "bg-nile-light text-nile-dark" : "bg-sand text-ink"}`}><HeartIcon size={18} filled={liked} /> {liked ? "أعجبني" : "إعجاب"}</button>
+        <button onClick={() => setShowComments((v) => !v)} className="flex-1 rounded-full py-2.5 bg-sand text-ink flex items-center justify-center gap-1.5"><CommentIcon size={18} /> تعليق</button>
+        <button onClick={() => sharePost(post.id)} className="flex-1 rounded-full py-2.5 bg-sand text-ink flex items-center justify-center gap-1.5"><ShareIcon size={18} /> مشاركة</button>
       </div>
       {showComments && (
         <div className="mt-3 space-y-2">

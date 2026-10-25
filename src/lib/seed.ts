@@ -31,7 +31,7 @@ export const seedState: AppState = {
     { id: "g2", name: "عشاق الكرة السودانية", description: "أخبار وونسة الكورة المحلية.", ownerId: "u3", members: ["u3", "u5"] },
   ],
   pages: [
-    { id: "pg1", name: "مطبخ سوداني", description: "عصيدة، قراصة، ملاحات ووصفات سودانية أصيلة.", ownerId: "u4", followers: ["u1", "u2"] },
+    { id: "pg1", name: "مطبخ سوداني", description: "عصيدة، قراصة، ملاحات ووصفات سودانية.", ownerId: "u4", followers: ["u1", "u2"] },
     { id: "pg2", name: "سياحة في السودان", description: "آثار، جبال، وبحر — السودان أجمل مما تتخيل.", ownerId: "u5", followers: ["u1"] },
   ],
   stories: [
