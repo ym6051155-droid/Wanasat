@@ -12,6 +12,11 @@ export default function ListingPage({ params }: { params: { id: string } }) {
   return (
     <div className="bg-white rounded-3xl shadow-sm border p-5 space-y-3">
       <h1 className="font-black text-xl">{item.title}</h1>
+      {item.mediaUrl && (item.mediaKind === "video" ? (
+        <video src={item.mediaUrl} controls playsInline className="w-full rounded-[20px] max-h-[420px] bg-black" />
+      ) : (
+        <img src={item.mediaUrl} alt="وسائط الإعلان" className="w-full rounded-[20px] object-cover max-h-[420px]" />
+      ))}
       <div className="text-nile font-black text-lg">{item.price.toLocaleString("ar-SD")} جنيه</div>
       <p>{item.description}</p>
       <p className="text-sm text-gray-500">{item.state} · {timeAgo(item.createdAt)}</p>

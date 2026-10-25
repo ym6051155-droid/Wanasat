@@ -40,11 +40,11 @@ type Store = {
   joinGroup: (gid: string) => void; leaveGroup: (gid: string) => void;
   createPage: (name: string, description: string) => string;
   togglePageFollow: (pid: string) => void;
-  addStory: (text: string) => void;
+  addStory: (text: string, media?: { url: string; kind: "image" | "video" }) => void;
   startConversation: (otherId: string) => string;
   sendMessage: (convId: string, text: string) => void;
   markNotificationsRead: () => void;
-  createListing: (title: string, price: number, stateName: string, description: string) => string;
+  createListing: (title: string, price: number, stateName: string, description: string, media?: { url: string; kind: "image" | "video" }) => string;
   createEvent: (title: string, date: string, location: string, description: string) => string;
   toggleRsvp: (eid: string) => void;
 };
@@ -215,10 +215,10 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
       return id;
     },
     togglePageFollow: (pid) => { if (currentId) setState((s) => ({ ...s, pages: s.pages.map((p) => p.id === pid ? { ...p, followers: p.followers.includes(currentId) ? p.followers.filter((x) => x !== currentId) : [...p.followers, currentId] } : p) })); },
-    addStory: (text) => {
-      if (!currentId || !text.trim()) return;
+    addStory: (text, media) => {
+      if (!currentId || (!text.trim() && !media?.url)) return;
       const created = new Date();
-      setState((s) => ({ ...s, stories: [{ id: uid("s"), authorId: currentId, text: text.trim(), createdAt: created.toISOString(), expiresAt: new Date(created.getTime() + 24 * 3600_000).toISOString() }, ...s.stories] }));
+      setState((s) => ({ ...s, stories: [{ id: uid("s"), authorId: currentId, text: text.trim(), mediaUrl: media?.url, mediaKind: media?.kind, createdAt: created.toISOString(), expiresAt: new Date(created.getTime() + 24 * 3600_000).toISOString() }, ...s.stories] }));
     },
     startConversation: (otherId) => {
       const existing = state.conversations.find((c) => c.participantIds.includes(otherId) && currentId && c.participantIds.includes(currentId));
@@ -232,9 +232,9 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
       setState((s) => ({ ...s, conversations: s.conversations.map((c) => c.id === convId ? { ...c, messages: [...c.messages, { id: uid("m"), senderId: currentId, text: text.trim(), createdAt: new Date().toISOString() }] } : c) }));
     },
     markNotificationsRead: () => { if (currentId) setState((s) => ({ ...s, notifications: s.notifications.map((n) => n.userId === currentId ? { ...n, read: true } : n) })); },
-    createListing: (title, price, stateName, description) => {
+    createListing: (title, price, stateName, description, media) => {
       const id = uid("l");
-      if (currentId) setState((s) => ({ ...s, listings: [{ id, sellerId: currentId, title, price, state: stateName, description, createdAt: new Date().toISOString() }, ...s.listings] }));
+      if (currentId) setState((s) => ({ ...s, listings: [{ id, sellerId: currentId, title, price, state: stateName, description, mediaUrl: media?.url, mediaKind: media?.kind, createdAt: new Date().toISOString() }, ...s.listings] }));
       return id;
     },
     createEvent: (title, date, location, description) => {

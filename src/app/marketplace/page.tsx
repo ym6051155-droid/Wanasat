@@ -15,6 +15,11 @@ export default function MarketplacePage() {
         const s = profileById(l.sellerId);
         return (
           <Link key={l.id} href={`/marketplace/${l.id}`} className="bg-white rounded-3xl shadow-sm border p-4 block">
+            {l.mediaUrl && (l.mediaKind === "video" ? (
+              <video src={l.mediaUrl} playsInline muted className="w-full rounded-[20px] max-h-[240px] bg-black mb-3" />
+            ) : (
+              <img src={l.mediaUrl} alt="وسائط الإعلان" className="w-full rounded-[20px] object-cover max-h-[240px] mb-3" />
+            ))}
             <div className="font-black">{l.title}</div>
             <div className="text-nile font-black mt-1">{l.price.toLocaleString("ar-SD")} جنيه</div>
             <div className="text-sm text-gray-500">{l.state} · {s?.name}</div>
